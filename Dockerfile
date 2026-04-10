@@ -1,5 +1,7 @@
 FROM --platform=${BUILDPLATFORM} node:18 AS build
 
+ARG TARGETARCH
+
 WORKDIR /opt/node_app
 
 COPY . .
@@ -14,8 +16,10 @@ ARG PUBLIC_URL=/
 
 RUN npm_config_target_arch=${TARGETARCH} VITE_BASE=${PUBLIC_URL} yarn build:app:docker
 
-FROM --platform=${TARGETPLATFORM} nginx:1.27-alpine
+FROM nginx:1.27-alpine
 
-COPY --from=build /opt/node_app/excalidraw-app/build /usr/share/nginx/html
+ARG PUBLIC_URL=/
 
-HEALTHCHECK CMD wget -q -O /dev/null http://localhost || exit 1
+COPY --from=build /opt/node_app/excalidraw-app/build /usr/share/nginx/html${PUBLIC_URL}
+
+HEALTHCHECK CMD wget -q -O /dev/null http://localhost${PUBLIC_URL} || exit 1
