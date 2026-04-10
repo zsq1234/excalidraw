@@ -10,8 +10,9 @@ RUN --mount=type=cache,target=/root/.cache/yarn \
     npm_config_target_arch=${TARGETARCH} yarn --network-timeout 600000
 
 ARG NODE_ENV=production
+ARG PUBLIC_URL=/
 
-RUN npm_config_target_arch=${TARGETARCH} yarn build:app:docker
+RUN npm_config_target_arch=${TARGETARCH} VITE_BASE=${PUBLIC_URL} yarn build:app:docker
 
 FROM --platform=${TARGETPLATFORM} nginx:1.27-alpine
 

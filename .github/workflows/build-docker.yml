@@ -4,10 +4,27 @@ on:
   push:
     branches:
       - release
+  workflow_dispatch:
+    inputs:
+      PUBLIC_URL:
+        description: "Base URL path for the static build (e.g. /excalidraw/). Leave empty for /"
+        required: false
+        default: "/"
 
 jobs:
   build-docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: docker build -t excalidraw .
+      - uses: actions/checkout@v3
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg PUBLIC_URL=${{ github.event.inputs.PUBLIC_URL || '/' }} \
+            -t excalidraw .
+      - name: Export Docker image to tar.gz
+        run: docker save excalidraw | gzip > excalidraw-docker.tar.gz
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: excalidraw-docker
+          path: excalidraw-docker.tar.gz
