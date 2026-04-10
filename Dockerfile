@@ -22,4 +22,4 @@ ARG PUBLIC_URL=/
 
 COPY --from=build /opt/node_app/excalidraw-app/build /usr/share/nginx/html${PUBLIC_URL}
 
-HEALTHCHECK CMD wget -q -O /dev/null http://localhost || exit 1
+HEALTHCHECK CMD wget -q -O /dev/null http://localhost${PUBLIC_URL} || exit 1
